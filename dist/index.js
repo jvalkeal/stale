@@ -115,6 +115,12 @@ class IssueProcessor {
                 }
                 // does this issue have a stale label?
                 let isStale = is_labeled_1.isLabeled(issue, staleLabel);
+                if (isStale) {
+                    core.info(`This issue has a stale label`);
+                }
+                else {
+                    core.info(`This issue hasn't a stale label`);
+                }
                 // should this issue be marked stale?
                 const shouldBeStale = !IssueProcessor.updatedSince(issue.updated_at, this.options.daysBeforeStale);
                 // determine if this issue needs to be marked stale first
@@ -311,9 +317,10 @@ class IssueProcessor {
     // Remove a label from an issue
     removeLabel(issue, label) {
         return __awaiter(this, void 0, void 0, function* () {
-            core.info(`Removing label from issue #${issue.number}`);
+            core.info(`Removing label "${label}" from issue #${issue.number}`);
             this.removedLabelIssues.push(issue);
             this.operationsLeft -= 1;
+            // @todo remove the debug only to be able to test the code below
             if (this.options.debugOnly) {
                 return;
             }
@@ -322,7 +329,7 @@ class IssueProcessor {
                     owner: github_1.context.repo.owner,
                     repo: github_1.context.repo.repo,
                     issue_number: issue.number,
-                    name: encodeURIComponent(label) // A label can have a "?" in the name
+                    name: label
                 });
             }
             catch (error) {
